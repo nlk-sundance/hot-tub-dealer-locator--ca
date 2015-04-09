@@ -740,6 +740,12 @@ class LocatorsController extends AppController
                         $countryId = 3;
                     }
                 }
+                if(!$zipCountryMatch && $countryId == 3){
+                    $zipCountryMatch = $this->checkCountryZip(1, $_POST['zip']);
+                    if($zipCountryMatch){
+                        $countryId = 1;
+                    }
+                }
             }else $zipCountryMatch = true;
             $defaultCtry = $countryId;
             $inUSCA = $this->verifyUSCA($countryId);
