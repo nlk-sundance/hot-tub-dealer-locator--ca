@@ -722,10 +722,13 @@ class LocatorsController extends AppController
                 $this->set('nearbyCities', $this->nearby_cities_lists($zip));
             }*/
         }elseif(isset($_POST['zipcodeSearch']) && $_POST['zipcodeSearch'] == 1) {
-            if(!isset($this->data['country']) || empty($this->data['country'])){
+            if(!isset($this->data['Dealer']['country_id']) || empty($this->data['Dealer']['country_id'])){
                 $countryId = 1;
             }else{
-                $countryId = $this->data['country'];
+                $countryId = $this->data['Dealer']['country_id'];
+            }
+            if(!isset($_POST['zip'])){
+                $_POST['zip'] = $this->data['Dealer']['zip'];
             }
             $validZip = ($countryId == '1' || $countryId == '3') ? $this->validZip($_POST['zip']) : true;
             
