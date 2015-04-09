@@ -508,6 +508,7 @@ class LocatorsController extends AppController
             $stateList = $this->State->find('all', array('conditions' => $query, 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1));
             //$stateList = $this->State->findAll($query, array('name', 'abbreviation'), 'name ASC', null, null, -1);
             $this->set('stateList', $stateList); #generate list of countries
+            $this->set('provList', $stateList); #generate list of countries
             $this->set('cityList', $this->Dealer->find('all', array('conditions' => array('Dealer.state_id' => $stateId, 'published' => 'Y'), 'fields' => array('DISTINCT(slug)', 'city'), 'order' => 'city', 'recursive' => -1)));
             //$this->set('cityList', $this->Dealer->findAll("Dealer.state_id = '".$stateId."'", array('DISTINCT(city)'), 'city', null, null, -1));
             $this->set("countryId", $countryId);
