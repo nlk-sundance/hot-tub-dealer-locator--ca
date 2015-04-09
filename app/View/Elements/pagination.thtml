@@ -1,0 +1,19 @@
+<div id='pagination'>
+<?php
+    if($pagination->setPaging($paging)){
+        $leftArrow = $html->image("nav/arrowleft.gif", array('height'=>15));
+        $rightArrow = $html->image("nav/arrowright.gif", array('height'=>15));
+
+        $prev = $pagination->prevPage($leftArrow, false);
+        $prev = $prev ? $prev : $leftArrow;
+        $next = $pagination->nextPage($rightArrow, false);
+        $next = $next ? $next : $rightArrow;
+
+        $pages = $pagination->pageNumbers(" | ");
+
+        echo $pagination->result().'&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;';
+        echo $prev." ".$pages." ".$next.'&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;Show per page:';
+        echo $pagination->resultsPerPage(NULL, ' ');
+    }
+?>
+</div>

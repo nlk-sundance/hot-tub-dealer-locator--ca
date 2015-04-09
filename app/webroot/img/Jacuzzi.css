@@ -1,0 +1,135 @@
+.text
+ {
+ color: #333;
+ font-size: 9px;
+ font-family: Tahoma, Arial, sans-serif;
+ line-height: 12px; 
+ }
+ 
+ .text2
+ {
+ color: #333;
+ font-size: 9px;
+ font-family: Tahoma, Arial, sans-serif;
+ line-height: 18px; 
+ }
+
+
+/* LINKS ------------------------------------------------------------------- */
+
+
+a
+ {
+ text-decoration: none;
+ }
+ 
+a:link
+ {
+ color: #039;
+ }
+
+a:visited
+ {
+ color: #036;
+ } 
+
+a:hover
+ {
+ color: #69C;
+ }
+
+a.list:link
+ {
+ color: #666666;
+ }
+
+a.list:visited
+ {
+ color: #666666;
+ } 
+
+a.list:hover
+ {
+ color: #999;
+ }
+ 
+a.help
+ {
+ cursor: help;
+ }
+ 
+a.crumb
+ {
+ text-transform: uppercase; 
+ }
+
+a.crumb:link
+ {
+ color: #AF8C1B;
+ }
+ 
+a.crumb:visited
+ {
+ color: #AF8C1B;
+ }
+ 
+a.crumb:hover
+ {
+ color: #CF9D2C;
+ }
+ 
+hr.rule {
+ border: none 0; 
+ background-color: #FFF;
+ border-top: 1px solid #D9D9D9;/*the border*/
+ height: 1px;/*whatever the total width of the border-top and border-bottom equal*/
+ margin: 20px 0px 11px 0px;
+ color: #FFF;
+ }
+ 
+h2
+{
+ margin: 0 0 5px 0;
+ font: 16px Tahoma, Arial, sans-serif;
+ text-transform: uppercase;
+}
+
+ h2.top
+{
+ margin: 30px 0 5px 0;
+ font: 16px Tahoma, Arial, sans-serif;
+ text-transform: uppercase;
+}
+
+
+h2.bottom
+{
+ margin: 0 0 20px 0;
+ font: 16px Tahoma, Arial, sans-serif;
+ text-transform: uppercase;
+}
+
+h2.sl
+{
+ margin: 20px 0 20px 0;
+ font: 16px Tahoma, Arial, sans-serif;
+ line-height: 18px;
+}
+
+h3
+{
+ margin: 10px 0 5px 0;
+ font: 14px Tahoma, Arial, sans-serif;
+ text-transform: uppercase;
+ line-height: 18px;
+}
+
+ul {
+ list-style: none;
+ padding: 0px;
+ margin: 0px;
+    }
+    
+li { list-style: none; 
+ padding: 0px 0px 5px 0px;
+ margin: 0px 0px 5px 0px;}

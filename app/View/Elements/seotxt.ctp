@@ -1,0 +1,6 @@
+<h3>Sundance hot tub dealers are located in over 60 countries.</h3>
+<p><?php if($this->action=='cities' && isset($cityName) && !empty($cityName)){?>
+    If you are browsing for hot tubs in <?php echo $cityName;?>, you can believe in Sundance Spas. Established in 1979, Sundance Spas has been recognized internationally with more awards and honors than any other spa company. No matter what your need or budget, choose from our wide variety of hot tubs. <?php echo $cityName;?> has the perfect climate for year-round enjoyment and relaxation in your hot tub spa. Find a Sundance Spas <?php echo $cityName;?> hot tub dealer near you and visit soon. Searching for hot tubs <?php echo $cityName;?>? Look no further than Sundance Spas.
+<?php }else{ ?>
+Find a Sundance Spa dealer near you and visit soon. There's nothing like seeing a Sundance in person &ndash; your spa dealer can even let you try out a bubbling hot tub. Wet or dry, you'll have fun at your Sundance spa dealer showroom, choosing the perfect model from the best hot tubs in the world. Discover the beautiful acrylic spa colors and coordinating SunStrong cabinetry on display in the hot tub selection at your spa dealer.
+<?php }?></p>

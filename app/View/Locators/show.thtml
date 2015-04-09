@@ -1,0 +1,165 @@
+<!-- Search Results -->
+<table width="613">
+<?php
+	function printInfo($dealer)
+	{
+		$maxDistance = 500;
+		echo '<tr><td width="180">';
+		echo '<b>'.$dealer["Dealer"]["name"].'</b>';
+		if (!empty($dealer["Dealer"]["address1"]))
+		{
+			echo '<br/>'.$dealer["Dealer"]["address1"];
+		}
+		if (!empty($dealer["Dealer"]["address2"]))
+		{
+			echo '<br/>'.$dealer["Dealer"]["address2"];
+		}
+		if (!empty($dealer["Dealer"]["city"]))
+		{
+			echo '<br/>'.$dealer["Dealer"]["city"];
+		}
+		if(isset($dealer["State"]["abbreviation"]))
+		{
+			echo ', '.$dealer["State"]["abbreviation"];
+		}
+		if(!empty($dealer["Dealer"]["zip"]))
+		{
+			if ($dealer["Country"]["name"] == "Canada")
+            {
+                $dealer["Dealer"]["zip"] = substr($dealer["Dealer"]["zip"],0,3)." ".substr($dealer["Dealer"]["zip"],3);
+            }
+			echo ' '.$dealer["Dealer"]["zip"];
+		}
+		echo '<br/>'.$dealer["Country"]["name"].'<br/>';
+		if (isset($dealer[0]['Dealer_Distance']))
+		{
+			echo '</br>Approximate Distance: '.round($dealer[0]['Dealer_Distance']).' miles<Br>';
+		}
+		if ($dealer["Country"]["name"] == "United States")
+		{
+		?>
+			<a href="http://www.mapquest.com/maps/map.adp?searchtype=address&country=US&addtohistory=&searchtab=home&address=+<?= urlencode($dealer["Dealer"]["address1"]) ?>&city=&state=&zipcode=<?= $dealer["Dealer"]["zip"] ?>" target="_blank"><img src="<?php echo BASEDIR;?>/css/images/view-map.jpg" alt="View Map"/></a><br />
+		<?php
+		}
+		echo '</td>';
+		echo '<td width="250">';
+		echo 'Phone: '.$dealer["Dealer"]["phone"].'<br/>';
+		echo 'Fax: '.$dealer["Dealer"]["fax"].'<br/>';
+		if(!empty($dealer["Dealer"]["email"]))
+		{
+			echo '<a href="mailto:'.$dealer["Dealer"]["email"].'" target=_blank">'.$dealer["Dealer"]["email"].'</a><br/>';
+		}
+		if(!empty($dealer["Dealer"]["website"]))
+		{
+			echo '<a href="'.BASEDIR.'/locators/omniture/'.$dealer["Dealer"]["id"].'" target="_blank">'.$dealer["Dealer"]["website"].'</a><br>';
+		}
+	}
+
+	#if in US or CA and zipcode is entered OR if another country
+	if(!empty($inUSCA) && !empty($_POST['zip']) || empty($inUSCA))
+	{
+		$_SESSION['country'] = $countryID['Country']['name']; #used for omniture
+  ?>
+		<tr><td colspan="2" class="hdr" width="613"><b><?php echo $lngTxt['searchResults'] ?></b>&nbsp;<?php echo $lngTxt['displaying'] ?> <?php echo count($owns); echo $lngTxt['numResults']; echo (count($owns) == 1) ? '': 's';?></td></tr>
+	<?php
+		#if any of the queries returned results print out info of each retailer
+		if(!empty($owns))
+		{
+			foreach($owns as $dealerID=>$dealer)
+			{
+				printInfo($dealer);
+			}
+		}
+		else
+		{ ?>
+			<tr>
+				<td><div style="font-size:11px; width: 320px;">
+					<p><?php echo $lngTxt['noRetailers']; echo $countryID['Country']['abbreviation']; if($countryID['Country']['abbreviation'] == "US" || $countryID['Country']['abbreviation'] == "CA") echo " ".strtoupper($zip); ?>.<br /><?php echo $lngTxt['contact'] ?><br /><b>1-866-234-7727</b></p>
+<p><b><?php echo $lngTxt['supportHrs']; ?></b><br /><?php echo $lngTxt['hours']; ?></p><p><?php echo $lngTxt['preferCustSup']?></p><p><a href="http://www.jacuzzihottubs.com/contact/support.html" target="_top"><img src="<?php echo BASEDIR;?>/css/images/customer-support.gif" alt="Customer Support" /></a></p></div>
+				</td>
+			</tr>
+	<?php }
+	}
+	else
+	{
+		?>
+			<tr>
+				<td><div style="font-size:11px; width: 320px;">
+					<p><p><?php echo $lngTxt['noRetailers']; echo $countryID['Country']['abbreviation']; if($countryID['Country']['abbreviation'] == "US" || $countryID['Country']['abbreviation'] == "CA") echo " ".strtoupper($zip); ?>.<br /><?php echo $lngTxt['contact'] ?><br /><b>1-866-234-7727</b></p>
+<p><b><?php echo $lngTxt['supportHrs']; ?></b><br /><?php echo $lngTxt['hours']; ?></p><p><?php echo $lngTxt['preferCustSup']?></p><p><a href="http://www.jacuzzihottubs.com/contact/support.html" target="_top"><img src="<?php echo BASEDIR;?>/css/images/customer-support.gif" alt="Customer Support" /></a></p></div>
+				</td>
+			</tr>
+	<?php } ?>
+</table>
+
+<!-- Locate A Dealer -->
+<table width="610">
+	<tr>
+		<td style="padding: 20px 20px; border-bottom: none;">
+	<p style="font-size:12px"><br /><b><?php echo $lngTxt['locateDealer'] ?></b><br />
+<br /><?php echo $lngTxt['toFind'] ?></p>
+</td><td style="padding: 20px 0; border-bottom: none;">
+			<form action="<?php echo BASEDIR;?>/locators/show/<?php echo $subDomain; ?>" method="post">
+				<table>
+					<tr>
+						<td class="lined"><?php echo $lngTxt['country'] ?></td>
+						<td class="lined"><?php echo $lngTxt['zipCode'] ?></td>
+					</tr>
+					<tr>
+						<td>
+							<?php
+								echo $html->selectTag("Dealer/country_id", $countryList, $defaultCtry, array('id'=>'brochure'), null, false); #drop down list of countries
+							?>
+						</td>
+						<td><input type="text" name="zip" /></td>
+					</tr>
+					<tr>
+						<td colspan="2" id="sub"><input type="submit" value="" /></td>
+					</tr>
+				</table>
+			</form>
+		</td>
+	</tr>
+</table>
+
+<?php
+  $_SESSION['inUSCA'] = $inUSCA;
+?>
+
+<!-- SiteCatalyst code version: H.10.
+Copyright 1997-2007 Omniture, Inc. More info available at
+http://www.omniture.com -->
+<script language="JavaScript" src="http://www.jacuzzihottubs.com/wp-content/themes/jht/js/SiteCatalyst.js"></script>
+<script language="JavaScript"><!--
+/* You may give each page an identifying name, server, and channel on
+the next lines. */
+s.pageName=""
+s.server=""
+s.channel=""
+s.pageType=""
+s.prop1=""
+s.prop2=""
+s.prop3=""
+s.prop4=""
+s.prop5=""
+/* Conversion Variables */
+s.campaign=""
+s.state=""
+s.zip=""
+s.events=""
+s.products=""
+s.purchaseID=""
+s.eVar1=""
+s.eVar2="<?php echo $_SESSION['country']; ?>"
+s.eVar3="<?php if(!empty($_SESSION['inUSCA'])) { echo $_SESSION['zip']; } ?>"
+s.eVar4=""
+s.eVar5=""
+/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+var s_code=s.t();if(s_code)document.write(s_code)//--></script>
+<script language="JavaScript"><!--
+if(navigator.appVersion.indexOf('MSIE')>=0)document.write(unescape('%3C')+'\!-'+'-')
+//--></script><noscript><a href="http://www.omniture.com" title="Web Analytics"><img
+src="http://jacuzzipremiumhottubs.jacuzzi.com.112.2O7.net/b/ss/jacuzzipremiumhottubs.jacuzzi.com/1/H.10--NS/0"
+height="1" width="1" border="0" alt="" /></a></noscript><!--/DO NOT REMOVE/-->
+<!-- End SiteCatalyst code version: H.10. -->
+

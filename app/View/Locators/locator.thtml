@@ -1,0 +1,198 @@
+<body onload="load()" onunload="GUnload()">
+<script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=ABQIAAAAMX0a4xiS8K7EqISbX-8EqxRZ0bk2HfmMh98gv1pafsBJWbKdbRQ2ohaYwEhy825d1EN_rd4aePqROQ" type="text/javascript"></script>
+<script type="text/javascript">
+      //<![CDATA[
+
+      var map = null;
+      var geocoder = null;
+
+      function load() {
+        if (GBrowserIsCompatible()) {
+          map = new GMap2(document.getElementById("map"));
+          geocoder = new GClientGeocoder();
+  
+          var mapTypeControl = new GMapTypeControl();
+          var bottomRight = new GControlPosition(G_ANCHOR_BOTTOM_RIGHT, new GSize(10,10));
+          GEvent.addListener(map, "dblclick", function(){ map.removeControl(mapTypeControl); map.addControl(new GMapTypeControl(), bottomRight);});
+          map.addControl(new GSmallMapControl());
+        }
+
+		<?php if(!empty($googleMapAddr)):?>
+	        showAddress( '<?php echo $googleMapAddr?>' );
+		<?php endif; ?>
+      }
+
+      function showAddress(address) {
+        if (geocoder) {
+          geocoder.getLatLng(
+            address,
+            function(point) {
+              if (!point) {
+                alert(address + " not found");
+              } else {
+                map.setCenter(point, 13);
+                var marker = new GMarker(point);
+                map.addOverlay(marker);
+                //marker.openInfoWindowHtml(address);
+              }
+            }
+          );
+        }
+      }
+      //]]>
+    </script>
+	
+<!-- Locate A Dealer -->
+<div class="breadcrumbs">
+	<a title="Hot Tub Stores" href="<?php echo BASEDIR;?>/locators/index">Search</a> >
+	<a title="Hot Tub Stores" href="<?php echo BASEDIR;?>/locators/index">Results</a>
+</div>
+<table width="610">
+<div class="bar1">Locate A Dealer</div>
+	<tr>
+		<td style="padding: 0 20px; border: none;">
+			<p style="font-size:12px"><br /><b><?php echo $lngTxt['locateDealer'] ?></b><br />
+			<br /><?php echo $lngTxt['toFind'] ?></p>
+		</td>
+		<td style="border: none;">
+			<form action="<?php echo BASEDIR;?>/locators/cities/" method="post" name="countryZipForm" id="countryZipForm">
+				<input type="hidden" name="zipcodeSearch" id="zipcodeSearch" value="0">
+				<table>
+					<tr>
+						<td class="lined"><?php echo $lngTxt['country'] ?></td>
+						<td class="lined"><?php echo $lngTxt['zipCode'] ?></td>
+					</tr>
+					
+					<tr>
+						<td>
+							<?php 
+								echo $html->selectTag("Dealer/country_id", $countryList, $defaultCtry, array('id'=>'brochure'), null, false); #drop down list of countries 
+							?>
+						</td>
+						<td><input type="text" name="zip"></td>
+					</tr>
+					<tr>
+						<td colspan="2" id="sub"><input value="" type="submit" onclick="document.getElementById('zipcodeSearch').value=1;"></td>
+					</tr>
+				</table>
+			</form>
+		</td>
+	</tr>
+</table>
+<div id="main">
+	<div class="clear"></div>
+<?php if(!empty($dealer)): ?>
+	<?php foreach($dealer as $d): ?>
+		<div class="bar2"><?php echo strtoupper($d['Dealer']['name']) ?></div>
+		<div class="address">
+	  		<span><?php echo $d['Dealer']['phone']?></span><br/>
+			<?php echo $d['Dealer']['address1']; 
+			$googleMapAddr = (!empty($d['Dealer']['address1'])) ? trim($d['Dealer']['address1']).' ' : '';
+			if(!empty($d['Dealer']['address2'])):
+				echo '<Br>'.$d['Dealer']['address2'];
+				$googleMapAddr .= (!empty($d['Dealer']['address2'])) ? trim($d['Dealer']['address2']).' ' : '';
+			endif; 
+			if(!empty($d['Dealer']['city'])):
+				echo '<Br>'.$d['Dealer']['city'];
+				$googleMapAddr .= (!empty($d['Dealer']['city'])) ? trim($d['Dealer']['city']).' ' : '';
+			endif;
+			if(!empty($d['State']['abbreviation'])):
+				echo ', '.$d["State"]["abbreviation"];
+				$googleMapAddr .= (!empty($d['State']['abbreviation'])) ? trim($d['State']['abbreviation']).' ' : '';
+			endif;
+			if(!empty($d['Dealer']['zip'])):
+				echo ' '.$d["Dealer"]["zip"];
+				$googleMapAddr .= (!empty($d['Dealer']['zip'])) ? trim($d['Dealer']['zip']) : '';
+			endif; 
+			$googleMapAddrNew = str_replace(' ', '+', $googleMapAddr);
+			?>
+		<?php if(!empty($d['Dealer']['email'])): ?>
+			<a href="mailto:<?php echo $d['Dealer']['email']?>"><?php echo $d['Dealer']['email']?></a>
+		<?php endif; ?>
+		<?php if(!empty($d['Dealer']['website'])): ?>
+	 		<a href="<?php echo BASEDIR.'/locators/omniture/'.$d["Dealer"]["id"]?>" target="_blank"><?php echo $d["Dealer"]["website"] ?></a>
+		<?php endif; ?>
+		<Br>
+		</div>
+		<div class="clear"></div>
+	<?php endforeach; ?>
+<?php else: ?>
+	<div class="bar2">Sorry, there were no results found for your search. Please make sure you have entered a valid zip/postal code and try again.</div>
+<?php endif; ?>
+<div class="clear"></div>
+<div class="bar2"><a href="#" onClick="toggle_element( 'searchbystate' ); return false;" style="color: white;text-decoration: none;">+/- Search By State</a></div>
+	<div id="searchbystate" class="barbox" style="display: none;">
+		<?php 
+			$i = 1;
+			$lastState = count($stateList)-1;
+
+			foreach($stateList as $key => $s)
+			{
+				$stateUrl = str_replace(' ', '-', strtolower($s['State']['name'].'-'.$s['State']['abbreviation']));
+				if($i == 1)
+					echo '<ul>';
+
+				echo '<li>'; 
+				echo '<a href="'.BASEDIR.'/locators/states/'.$stateUrl.'">'.$s['State']['name'].'</a>';
+				echo '</li>';
+
+				if($i == 13)
+				{
+					echo '</ul>';
+					$i = 1;
+					continue;
+				}
+				elseif($key == $lastState)
+				{
+					echo '</ul>';
+					echo '<div class="clear"></div>';
+					break;
+				}
+				$i++;
+			}
+		?>
+	</div>
+	</div>
+</div>
+</body>
+<?php
+  $_SESSION['inUSCA'] = $inUSCA;
+?>
+
+<!-- SiteCatalyst code version: H.10.
+Copyright 1997-2007 Omniture, Inc. More info available at
+http://www.omniture.com -->
+<script language="JavaScript" src="http://www.jacuzzihottubs.com/wp-content/themes/jht/js/SiteCatalyst.js"></script>
+<script language="JavaScript"><!--
+/* You may give each page an identifying name, server, and channel on
+the next lines. */
+s.pageName=""
+s.server=""
+s.channel=""
+s.pageType=""
+s.prop1=""
+s.prop2=""
+s.prop3=""
+s.prop4=""
+s.prop5=""
+/* Conversion Variables */
+s.campaign=""
+s.state=""
+s.zip=""
+s.events=""
+s.products=""
+s.purchaseID=""
+s.eVar1=""
+s.eVar2="<?php echo $_SESSION['country']; ?>"
+s.eVar3="<?php if(!empty($_SESSION['inUSCA'])) { echo $_SESSION['zip']; } ?>"
+s.eVar4=""
+s.eVar5=""
+/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+var s_code=s.t();if(s_code)document.write(s_code)//--></script>
+<script language="JavaScript"><!--
+if(navigator.appVersion.indexOf('MSIE')>=0)document.write(unescape('%3C')+'\!-'+'-')
+//--></script><noscript><a href="http://www.omniture.com" title="Web Analytics"><img
+src="http://jacuzzipremiumhottubs.jacuzzi.com.112.2O7.net/b/ss/jacuzzipremiumhottubs.jacuzzi.com/1/H.10--NS/0"
+height="1" width="1" border="0" alt="" /></a></noscript><!--/DO NOT REMOVE/-->
+<!-- End SiteCatalyst code version: H.10. -->
+

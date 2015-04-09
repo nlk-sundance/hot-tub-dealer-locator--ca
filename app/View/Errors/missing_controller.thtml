@@ -1,0 +1,8 @@
+<div style="padding: 10px;">
+<strong>The requested page does not exist.</strong>
+
+<?php if (!empty($_SERVER['HTTP_REFERER'])):?>
+    <br/><a href="<?php echo $_SERVER['HTTP_REFERER'];?>">Previous Page</a>
+<?php endif;?>
+
+</div>

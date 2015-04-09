@@ -1,0 +1,84 @@
+<?php echo '<?xml version="1.0" encoding="utf-8"?>';
+	function printInfo($dealer)
+	{
+		$maxDistance = 500;
+		echo '<dealer>';
+		echo '<name>'.strtoupper($dealer["Dealer"]["name"]).'</name>';
+		echo '<address>';
+		if (!empty($dealer["Dealer"]["address1"]))
+		{	
+			echo '<line>'.$dealer["Dealer"]["address1"].'</line>';
+		}
+		if (!empty($dealer["Dealer"]["address2"]))
+		{	
+			echo '<line>'.$dealer["Dealer"]["address2"].'</line>';
+		}
+		echo '<line>';
+		if (!empty($dealer["Dealer"]["city"]))
+		{
+			echo $dealer["Dealer"]["city"];
+		}
+		if(isset($dealer["State"]["abbreviation"]))
+		{
+			echo ', '.$dealer["State"]["abbreviation"];
+		}
+		if(!empty($dealer["Dealer"]["zip"]))
+		{
+			if ($dealer["Country"]["name"] == "Canada")
+            {
+                $dealer["Dealer"]["zip"] = substr($dealer["Dealer"]["zip"],0,3)." ".substr($dealer["Dealer"]["zip"],3);
+            }
+			echo ' '.$dealer["Dealer"]["zip"];
+		}
+		echo '</line>';
+		echo '<line>'.$dealer["Country"]["name"].'</line></address>';
+		echo '<phone>Phone: '.$dealer["Dealer"]["phone"].'</phone>';
+		echo '<fax>Fax: '.$dealer["Dealer"]["fax"].'</fax>';
+		if (isset($dealer[0]['Dealer_Distance']))
+		{
+			echo '<approximatedistance>Approximate Distance: '.round($dealer[0]['Dealer_Distance']).' miles</approximatedistance>';
+		}
+		if(!empty($dealer["Dealer"]["email"]))
+		{
+			echo '<email><a target="_blank" href="mailto:'.$dealer["Dealer"]["email"].'">'.$dealer["Dealer"]["email"].'</a></email>';
+		}
+		if(!empty($dealer["Dealer"]["website"]))
+		{
+			echo '<website><a target="_blank" href="'.$dealer["Dealer"]["website"].'">'.$dealer["Dealer"]["website"].'</a></website>';
+		}
+		if ($dealer["Country"]["name"] == "United States")
+		{
+			$address = urlencode('address&country=US&addtohistory=&searchtab=home&address=+'.$dealer["Dealer"]["address1"] .'&city=&state=&zipcode='.$dealer["Dealer"]["zip"]);
+		?>
+			 <maplink><a target="_blank" href="http://www.mapquest.com/maps/map.adp?searchtype=address&country=US&addtohistory=&searchtab=home&address=+<?php echo urlencode($dealer["Dealer"]["address1"]); ?>&city=&state=&zipcode=<?php echo $dealer["Dealer"]["zip"] ?><?php #echo $address; ?>">View Map</a></maplink> 
+
+	<?php
+		}
+		echo '</dealer>';
+	}
+	#if in US or CA and zipcode is entered OR if another country
+	if(!empty($inUSCA) && !empty($zip) || empty($inUSCA))
+	{
+		#if any of the queries returned results print out info of each retailer
+		if(!empty($owns))
+		{
+			echo '<rsp stat="ok"><dealerlist>';
+			foreach($owns as $dealerID=>$dealer)
+			{
+				printInfo($dealer);
+			}
+			echo '</dealerlist></rsp>';
+		}
+		else
+		{
+			echo '<rsp stat="fail">';
+			echo '<err code="no_retailer" msg="There are no retailers within 500 miles of your postal code or you may have entered an invalid postal code."/>';
+  			echo '</rsp>';
+		}
+	}
+	else
+	{
+		echo '<rsp stat="fail">';
+		echo '<err code="no_retailer" msg="There are no retailers within 500 miles of your postal code or you may have entered an invalid postal code."/>';
+  		echo '</rsp>';
+	} ?>

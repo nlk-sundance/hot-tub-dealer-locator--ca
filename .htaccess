@@ -1,0 +1,29 @@
+<IfModule mod_rewrite.c>  
+   RewriteEngine on
+   #RewriteBase /hot-tub-dealer-locator/
+
+   #redirect so that the site always goes to www
+   #RewriteCond %{HTTP_HOST} !^www\.
+   #RewriteRule (.*) http://www.%{HTTP_HOST}/hot-tub-dealer-locator/$1 [R=301,L]
+
+   RewriteRule    ^css/(.*)$ app/webroot/css/$1 [L]
+   RewriteRule    ^img/(.*)$ app/webroot/img/$1 [L]
+   RewriteRule    ^js/(.*)$ app/webroot/js/$1 [L]
+   RewriteRule    ^omniture/(.*)$ app/locators/omniture/$1 [L]
+   RewriteRule    ^/?$ app/locators/index [L]
+   RewriteRule    ^index/?$ app/locators/index [L]
+   RewriteRule    ^states/(.*)$ app/locators/states/$1 [L]
+   RewriteRule    ^cities/(.*)$ app/locators/cities/$1 [L]
+   RewriteRule    ^dealers/(.*)$ app/dealers/$1 [L]
+   # RewriteRule    ^([^/.]+)/([^/.]+)/([^/.]+)/?$ app/locators/dealers/$1/$2/$3 [L]
+   RewriteRule    ^([^/.]+)/([^/.]+)/([^/.]+)/?$ app/locators/cities/$1/$2 [L]
+   RewriteRule    ^([^/.]+)/([^/.]+)/?$ app/locators/cities/$1/$2 [L]
+   RewriteRule    ^([^/.]+)/?$ app/locators/states/$1/$2 [L]
+   RewriteRule    ^$ app/webroot/    [L] 
+   RewriteRule    (.*) app/webroot/$1 [L] 
+   RewriteRule    app/locators/states/oh app/locators/states/ohio-oh [L]
+   RewriteRule    app/locators/cities/oh/(.*)$ app/locators/cities/ohio-oh/$1 [L]
+   # RewriteRule    app/locators/dealers/oh/(.*)$ app/locators/dealers/ohio-oh/$1/$2 [L]
+   RewriteRule    app/locators/dealers/oh/(.*)$ app/locators/cities/ohio-oh/$1 [L]
+   
+</IfModule>

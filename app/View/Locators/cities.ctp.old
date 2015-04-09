@@ -1,0 +1,444 @@
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+        var directionsDisplay;
+        var directionsService = new google.maps.DirectionsService();
+        var map;
+        var marker;
+        function initialize() {
+          directionsDisplay = new google.maps.DirectionsRenderer();
+          var dealer = new google.maps.LatLng(<?php echo $dealer['Dealer']['latitude']; ?>,<?php echo $dealer['Dealer']['longitude']; ?>);
+          var mapOptions = {
+            zoom:13,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            center: dealer
+          }
+          map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+          marker = new google.maps.Marker({
+              position: dealer,
+              map: map,
+              title: '<?php echo addslashes($dealer['Dealer']['name']); ?>'
+          });
+          directionsDisplay.setMap(map);
+          directionsDisplay.setPanel(document.getElementById('directions-panel'));
+        }
+
+        function calcRoute() {
+          var start = document.getElementById('saddr').value;
+          var end = '<?php echo $dealer['Dealer']['address1'].(!empty($dealer['Dealer']['address2']) ? ', '.$dealer['Dealer']['address2'] : '').', '.$dealer['Dealer']['city'].', '.$dealer['State']['abbreviation'].' '.$dealer['Dealer']['zip']; ?>';
+          var request = {
+              origin:start,
+              destination:end,
+              travelMode: google.maps.DirectionsTravelMode.DRIVING
+          };
+          directionsService.route(request, function(response, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+              directionsDisplay.setDirections(response);
+            }
+          });
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+
+
+        function show_sms() {
+            jQuery('#sms-form-success').hide();
+            jQuery('#sms-carrier').val("");
+            jQuery('#sms-phonenumber').val("");
+            jQuery('#sms-container').show('slow');
+            jQuery('#sms-form').show();
+        }
+        
+        jQuery(document).ready(function($){
+            // SMS pop-up control
+            $(document).bind('mouseup touchstart', function(e){
+                var container = $('#sms-form');
+                if (!container.is(e.target) // if the target of the click isn't the container...
+                    && container.has(e.target).length === 0) // ... nor a descendant of the container
+                    {
+                        $('#sms-container').hide('slow');
+                    }
+            });
+            // submit for SMS form
+            $('form[name=send-message-form]').submit( function() {
+                var canSubmit = true;
+                var smsNumber = $('#sms-phonenumber').val();
+                smsNumber = smsNumber.replace(/\D/g,'');
+                var smsCarrier = $('#sms-carrier').val();
+
+                if ( smsNumber == '' ) { canSubmit = false; }
+                if ( smsCarrier == '' ) { canSubmit = false; }
+
+                var emailToVal = smsNumber + '@' + smsCarrier;
+                var subjectVal = '<?php echo addslashes($dealer['Dealer']['name']); ?>';
+                var messageVal = "Address: <?php echo $dealer['Dealer']['address1'].(!empty($dealer['Dealer']['address2']) ? ', '.$dealer['Dealer']['address2'] : '').', '.$dealer['Dealer']['city'].', '.$dealer['State']['abbreviation'].' '.$dealer['Dealer']['zip']; ?>" + "\n" + "Phone: <?php echo $dealer['Dealer']['phone'] ?>" + "\n" + "Website: <?php echo $dealer['Dealer']['website']; ?>";
+                var data = { action: 'sms_dealer_email', emailTo: emailToVal, subject: subjectVal, message: messageVal };
+
+                if ( canSubmit == true ) {
+                    $.post(
+                        "<?php echo FULL_BASE_URL.dirname($this->base);?>/wp-admin/admin-ajax.php",
+                        data,
+                        function(response) {
+                            $('#sms-form').hide();
+                            $("#sms-form-success").show("normal");
+                        }
+                    );
+                    //_gaq.push(['_trackEvent', 'DealerLocator', 'Send-to-phone']);
+                }
+                return false;
+            });
+
+            //submit button for directions search
+            $('form[name=getDirs]').submit( function() {
+                if ( $('#saddr').val() !== "" ) {
+                    if ( $("#map-canvas").height() < 200 ) {
+                        $("#map-canvas").animate( { height: '+=100px' }, 500, function() {
+                                google.maps.event.trigger(map, 'resize');
+                                marker.setMap(null);
+                                calcRoute();
+                        });
+                    }
+                    else {
+                        calcRoute();
+                    }
+                    if ( $("#directions-panel").height() < 20 ) {
+                        $("#directions-panel").animate( { maxHeight: '24px' }, 300 );
+                    }
+                    //_gaq.push(['_trackEvent', 'DealerLocator', 'Directions']);
+                }
+                return false;
+            });
+            $("#dirs-showhide").click( function() {
+                if ( $(this).hasClass('expanded') ) {
+                    $("#directions-panel").animate( { maxHeight: '24px' }, 500 ).css('overflow', 'hidden');
+                    $(this).removeClass('expanded').removeClass('icon-arrow-up').addClass('icon-arrow-down').text('  Show Directions');
+                }
+                else {
+                    $("#directions-panel").animate( { maxHeight: '900px' }, 500, function() {
+                        $("#directions-panel").css('overflow', 'auto');
+                    });
+                    $(this).addClass('expanded').removeClass('icon-arrow-down').addClass('icon-arrow-up').text('  Hide Directions');
+                }
+            });
+
+            // animate images
+            var nimg = $('.dealerimg').length;
+            var $lastimg = $('.dealer-img-contain>img:last-child');
+
+            if ( nimg > 1 ) {
+                $lastimg.css('display', 'block').delay(4500).fadeOut(500);
+            }
+            else {
+                $lastimg.css('display', 'block');
+            }
+            function startImg() {
+                var $firstimg = $('.dealer-img-contain>img:first-child');
+                $firstimg.fadeIn(500, function () {
+                    $(this).parent().append($(this));
+                    $(this).delay(4000).fadeOut(500);
+                });
+            }
+            
+            if ( nimg > 1 ) {
+                setInterval( function() {
+                    startImg();
+                }, 5000);
+            }
+
+            //animate testimonials
+            if ( $('#testimonial-container').children().size() > 1 ) {
+                var $last = $('#testimonial-container>p:last-child');
+                $last.css('display', 'block').delay(11500).fadeOut(500);
+                function startTesti() {
+                    var $first = $('#testimonial-container>p:first-child');
+                    $first.fadeIn(500, function () {
+                        $(this).parent().append($(this));
+                        $(this).delay(11000).fadeOut(500);
+                    });
+                }
+                var ntest = $('.dealertest').length;
+                if ( ntest > 1 ) {
+                    setInterval( function() {
+                        startTesti();
+                    }, 12000);
+                }
+            }
+            else {
+                $('#testimonial-container p').css('display', 'block');
+            }
+
+            var hl = $('.dealer-lt-col').height();
+            var hr = $('.dealer-rt-col').height();
+            if ( hl > hr ) {
+                $('.dealer-rt-col').height(hl);
+            }
+
+            $('.close-popup').click( function() {
+                $('#sms-container').hide('normal');
+            });
+
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        function PrintElem(elem)
+        {
+            Popup($(elem).html());
+        }
+
+        function Popup(data) 
+        {
+            var mywindow = window.open('', 'Directions');
+            mywindow.document.write('<html><head><title>Directions</title>');
+            /*optional stylesheet*/ //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
+            mywindow.document.write('</head><body >');
+            mywindow.document.write(data);
+            mywindow.document.write('</body></html>');
+
+            mywindow.print();
+            mywindow.close();
+
+            return true;
+        }
+
+    </script>
+    <!--script async src="https://www.youtube.com/iframe_api"></script-->
+    <!--script>
+      // This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      //   <iframe id="jhtVideo" width="312" height="176" src="//www.youtube.com/embed/cQTcoe4Zo6M?enablejsapi=1&playerapiid=jhtVideo" frameborder="0" allowfullscreen></iframe>
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('jhtVideo', {
+          height: '176',
+          width: '312',
+          videoId: 'cQTcoe4Zo6M',
+          events: {
+            'onReady': onPlayerReady
+          }
+        });
+      }
+
+      // The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        //event.target.playVideo();
+      }
+    </script-->
+    
+    <?php ?>
+
+    <div id="sms-container" >
+        <div id="sms-form" >
+            <h3>Send to Phone</h3>
+            <form action="/" method="post" id="sms-fields" name="send-message-form" >
+                <label for="sms-carrier">Select Your Mobile Carrier</label>
+                <select id="sms-carrier" name="sms-carrier">
+                    <option value="">Choose from available carriers</option>
+                    <optgroup>
+                        <option value="txt.att.net">AT&T</option>
+                        <option value="sms.mycricket.com">Cricket</option>
+                        <option value="mymetropcs.com">MetroPCS</option>
+                        <option value="messaging.sprintpcs.com">Sprint</option>
+                        <option value="tmomail.net">T-Mobile</option>
+                        <option value="txt.att.net">TracFone</option>
+                        <option value="email.uscc.net">U.S. Cellular</option>
+                        <option value="vtext.com">Verizon</option>
+                        <option value="vmobl.com">Virgin Mobile</option>
+                    </optgroup>
+                </select>
+                <label for="sms-phonenumber">Enter your mobile number</label>
+                <input type="text" id="sms-phonenumber" class="phonenumber" name="sms-phonenumber" placeholder="Phone Number"/>
+                <input type="hidden" name="action" value="sms_dealer_email" />
+                <input type="submit" id="submit-sms" class="black-button" name="submit-sms" value="Send details to my phone >" />
+            </form>
+            <a class="close-popup">X</a>
+        </div>
+        <div id="sms-form-success">
+            <h3>Thank you!</h3><p>Your Dealer information is on its way.</p>
+            <a class="black-button">Close</a>
+        </div>
+    </div>
+
+    <div class="hero">
+      <div class="wrap">
+            <h1 class="title"><?php echo $cityName; ?> Hot Tub Dealer</h1>
+        </div>
+    </div>
+
+    <div class="bd dealer-page">
+      <div class="wrap">
+
+            <div class="dealer-two-col">
+                <div class="dealer-banner">
+                    <div class="dealer-banner-lt">
+                        <h2><?php echo $dealer['Dealer']['name'] ?></h2>
+                    </div>
+                    <div class="dealer-banner-rt">
+                        <a id="dl-print" href="javascript:window.print()" class="black-button lt" ><span class="print-button"></span><div class="right-carrot"></div></a>
+                        <a class="black-button rt" onclick="show_sms()"><span class="send-to-phone-button"></span><div class="right-carrot"></div></a>
+                        
+                    </div>
+                </div>
+                <div class="dealer-lt-col">
+                    <div class="dealer-images">
+                        <div class="dealer-img-contain">
+                            <?php foreach($dealer['Image'] as $i){
+                                echo $this->Image->resize('/files/dealer_imgs/'.$i['dealer_id'].'/store/'.$i['path'], 304, 317, array('class' => 'dealerimg'));
+                            }?>
+                        </div>
+                        <div class="dealer-locator-form">
+                            <p>Get directions to this dealer</p>
+                            <form name="getDirs">                              
+                            <input id="saddr" type="text" name="starting_address" value="Please enter your address" placeholder="Please enter your address" onfocus="if(jQuery(this).val() == 'Please enter your address') jQuery(this).val('')" onblur="if(jQuery(this).val() == '') jQuery(this).val('Please enter your address')"/>
+                            <input type="submit" id="get_directions" name="submit-go" value="Go" /><div class="right-carrot"></div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="dealer-details" itemscope itemtype="http://schema.org/LocalBusiness">
+                        <span style="display:none;" itemprop="name"><?php echo $dealer['Dealer']['name'] ?></span>
+                        <span style="display:none;" itemprop="description">Find a wide selection of hot tubs and spas at a Jacuzzi hot tub spa dealer in <?php echo $cityName;?>, <?php echo $stateName;?>.</span>
+                        <div itemscope itemtype="http://schema.org/PostalAddress" style="position:relative; top:auto;">
+                            <h4>Address</h4>
+                            <div itemprop="address" style="position:relative; top:auto;">
+                                <p><?php echo '<span class="address1" itemprop="streetAddress">'. $dealer['Dealer']['address1'].(!empty($dealer['Dealer']['address2']) ? ', '.$dealer['Dealer']['address2'] : '').'</span><span class="ac">, </span><span class="city"  itemprop="addressLocality">'.$cityName.'</span>, <span class="state"  itemprop="addressRegion">'.$dealer['State']['abbreviation'].'</span>, <span class="dzip">'.$dealer['Dealer']['zip'] .'</span>'; ?></p>
+                            </div>
+                            <h4>Phone</h4>
+                            <p><span class="phone" itemprop="telephone"><?php echo $dealer['Dealer']['phone']; ?></span></p>
+                        </div>
+                        <?php if(!empty($dealer['Dealer']['hours'])){?>
+                            <h4>Store Hours</h4>
+                            <style>
+                                .dealer-page .dealer-details .hours_div {position:static;top:0;width:auto;}
+                                .dealer-page .dealer-details .hours_div p {margin:0;}
+                            </style>
+                            <div class="hours_div">
+                                <?php echo $dealer['Dealer']['hours']; ?>
+                            </div>
+                        <?php }?>
+                        <div>
+                            <?php if(!empty($dealer['Dealer']['email'])){?>
+                                <a id="dl-mailto" href="mailto:<?php echo $dealer['Dealer']['email']; ?>" class="lt" ><span class="icons icon-envelope"></span><span class="the-words">Email dealer</span></a>
+                            <?php }?>
+                            <?php if(!empty($dealer['Dealer']['website'])){?>
+                                <a id="dl-website" href="<?php echo $dealer['Dealer']['website']; ?>" class="rt" target="_blank" rel="nofollow" ><span class="icons icon-map-pin-stroke"></span><span class="the-words">Dealer's Website</span></a>
+                            <?php }?>
+                        </div>
+
+                    </div>
+                    <div id="map-canvas" class="dealer-map"></div>
+                    <div id="directions-panel">
+                        <div id="dirs-showhide" class="fs1 icon-arrow-down">&nbsp; Show Directions</div>
+                        <div id="print-directions"><a onclick="PrintElem('.adp.classic')" >Print Directions</a></div>
+                    </div>
+
+                    <div class="dealer-article">
+                        <?php if(!empty($dealer['Dealer']['promo_image'])) { ?>
+                            <div class="dealer-promo">
+                                <?php echo $this->Image->resize('/files/dealer_imgs/'.$dealer['Dealer']['id'].'/promo/'.$dealer['Dealer']['promo_image'], 640, 100);?>
+                            </div>
+                        <?php } ?>
+                        <?php if(isset($dealer['Dealer']['default_promo']) && $dealer['Dealer']['default_promo'] == 1 && !empty($dealer['Dealer']['additional_html_start']) && !empty($dealer['Dealer']['additional_html_end']) && $dealer['Dealer']['additional_html_start'] <= time() && $dealer['Dealer']['additional_html_end'] >= time()){ ?>
+                            <?php $sale_start_date = (!empty($dealer['Dealer']['additional_html_start_sale']) ? $dealer['Dealer']['additional_html_start_sale'] : $dealer['Dealer']['additional_html_start']);
+                            $sale_dates = date('F j', $sale_start_date).'-'.(date('F', $sale_start_date)==date('F', $dealer['Dealer']['additional_html_end']) ? date('j', $dealer['Dealer']['additional_html_end']) : date('F j', $dealer['Dealer']['additional_html_end']));?>
+                            <div class="dealer-promo">
+                            <table>
+                                <tr>
+                                    <td style="vertical-align:middle"><div id="truckd">
+                                        <font color="#B98100"><strong>LIMITED TIME ONLY JACUZZI FACTORY TRUCKLOAD SALE <?php echo strtoupper($sale_dates);?></strong></font>
+                                        <br />
+                                        From <?php echo $sale_dates;?>, the Jacuzzi&reg; Hot Tub Truckload Sale will be at <?php echo $dealer['Dealer']['name']?>, with factory-direct savings of UP TO 50%! <a href="http://www.jacuzzitruckload.com/sales/" target="_blank">Click here</a> for more information.</div>
+                                    </td>
+                                    <td>&nbsp;&nbsp;</td>
+                                    <td><img style="width: 325px; margin: 0 0 26px 0;" src="http://www.jacuzzi.com/hot-tubs/images/promo/jacuzzi-truckload-small.jpg" /></td>
+                                </tr>
+                            </table>
+                            </div>
+                        <?php }?>
+
+                        <div class="dealer-exp-vid">
+                            <h2>Why a Dealer Visit is<br />your best next step</h2>
+                            <p>Watch this video to learn about the<br />Jacuzzi dealer experience.</p>
+                            <!--[if lte IE 9]><div style="display:none;"><![endif]-->
+                            <!--a id="playJHTvideo" onclick="player.playVideo()"><span class="play-now">View Now</span></a-->
+                            <!--[if lte IE 9]></div><![endif]-->
+                            <div id="jhtVideo">
+                                <iframe width="312" height="176" src="//www.youtube.com/embed/cQTcoe4Zo6M" frameborder="0" allowfullscreen></iframe>
+                                <!--iframe id="jhtVideo" width="312" height="176" src="//www.youtube.com/embed/cQTcoe4Zo6M?enablejsapi=1&playerapiid=jhtVideo" frameborder="0" allowfullscreen></iframe-->
+                            </div>
+                        </div>
+                        
+                        <h3><?php echo $dealer['Dealer']['about_title'];?></h3>
+                        <?php if(!empty($dealer['Dealer']['about_body'])){
+                            echo $dealer['Dealer']['about_body'];
+                        }else{?>
+                            <p>
+                                <?php echo $cityName;?> hot tub providers offer first-time buyers all the must-know facts about tubs, including available indoor and outdoor selections, features, price ranges, and maintenance information, to guarantee you're prepared to choose a hot tub fitting both your preferences and budget.</p>
+                            <p>
+                                Whether you are in search of a cozy three-seat Jacuzzi spa for intimate gatherings or you prefer a seven-person hot tub for those backyard bashes of yours, browse the hot tub dealers in <?php echo $cityName;?>, <?php echo $stateName;?> to find the whirlpool best suited to your needs. Our Jacuzzi hot tub dealer at <?php echo $dealer['Dealer']['address1'];?> will present you with all of the available tubs, from the ones best for private hydrotherapy to the ones ideal for hosting multiple guests. Come visit your local hot tub and spa retail store today.
+                            </p>
+                            <p>
+                                Visit a local <?php echo $cityName;?> dealer to experience Jacuzzi's winning patented design and value. There's no denying our hot tubs spoil you with the rest, relaxation, and rejuvenation you desire and deserve, but do realize your tub does need a little love and care in return. When it comes to the health and performance of your whirlpool, there are several necessary supplies and accessories available to keep it bubbling at its best, which you can find at Jacuzzi retailers. Browse the <?php echo $dealer['Dealer']['name'];?> selection of parts, chemicals, and filters to guarantee your backyard tub presents you with the highest quality of performance. In addition to these maintenance tools, ask your trusted Jacuzzi retailers about the variety of hot tub complements to further improve your <?php echo $cityName;?> whirlpool experience, such as covers and lifts along with other personalized accessories. Check out steps and wireless audio remotes when you visit your Jacuzzi store in <?php echo $cityName;?>. For additional information on prolonging the life of your hot tub, contact your local Jacuzzi dealers at <?php echo $dealer['Dealer']['phone'];?> or download a free brochure today!
+                            </p>
+                        <?php };?>
+                        <?php if(isset($dealer['Staff']) && !empty($dealer['Staff'])){
+                            echo '<h3>Our Outstanding Staff</h3>';
+                            foreach($dealer['Staff'] as $s){?>
+                                <p style="text-align: left; clear:left;">
+                                    <?php if(!empty($s['photo'])){
+                                        echo $this->Image->resize('/files/dealer_imgs/'.$s['dealer_id'].'/staff/'.$s['photo'], 220, 162, array('class' => 'dealerimg', 'align' => 'left', 'title' => $cityName.' Hot Tub Dealer', 'alt' => $s['name'].' '.$cityName.' Hot Tub Dealer'));
+                                    }?>
+                                    <b> <?php echo $s['name'];?> &mdash; <?php echo $s['position'];?>  </b>
+                                </p>
+                                <p style="text-align: left;"><?php echo $s['description'];?></p>
+                                <p>&nbsp;</p>
+                            <?php }
+                        }?>
+                    </div>
+                </div>
+                <div class="dealer-rt-col">
+                    <div class="dealer-testimonials">
+                        <span class="test-quot lt">&ldquo;</span>
+                        <span id="testimonial-container">
+                            <?php foreach($dealer['Quote'] as $q){?>
+                                <p class="dealertest">
+                                    <?php echo $q['quote'];?>
+                                    <br /><br />
+                                    - <?php echo $q['name'];?>
+                                </p>
+                            <?php }?>
+                        </span>
+                        <span class="test-quot rt">&rdquo;</span>
+                    </div>
+                    <div class="dealer-visit-guide widge">
+                        <h4>Dealer Visit Guide</h4>
+                        <p>Download your printable Dealer Visit Guide - Your roadmap to making the most of your visit and finding your perfect hot tub, checklists and essential questions to ask.</p>
+                        <a id="dl-visit-guide" href="<?php echo FULL_BASE_URL.dirname($this->base);?>/wp-content/themes/jht/images/brochure/Jacuzzi_Hottubs_Dealer_Visit_Checklist.pdf" class="black-button" target="_blank">Download<div class="fs1" aria-hidden="true" data-icon="&#xe129;"><div class="arrow-cover-t"></div></div></a>
+                    </div>
+                    <?php if($dealer['Dealer']['seo_text']){ ?>
+                        <div>
+                            <?php echo $dealer['Dealer']['seo_text'];?>
+                        </div>
+                    <?php } ?>
+                    <div class="dealer-request-quote widge gld">
+                        <h4>Request a Quote from<br />your local dealer today!</h4>
+                        <a id="dl-request-quote" href="<?php echo FULL_BASE_URL.dirname($this->base);?>/get-a-quote/" class="black-button" >Get My Quote<div class="fs1" aria-hidden="true" data-icon="&#xe127;"><div class="arrow-cover-l"></div></div></a>
+                    </div>
+                    <div class="dealer-brochure widge gld">
+                        <h4>Jacuzzi Brochure</h4>
+                        <p>40 Pages of<br />Facts &amp; Photos<br /><span>For Free</span></p>
+                        <a id="dl-request-brochure" href="<?php echo FULL_BASE_URL.dirname($this->base);?>/request-brochure/" class="black-button" >Get My Brochure<div class="fs1" aria-hidden="true" data-icon="&#xe127;"><div class="arrow-cover-l"></div></div></a>
+                    </div>
+                    <?php if(!empty($dealer['Service'])){?>
+                        <div class="dealer-services widge gld">
+                            <h4>Hot Tub Services</h4>
+                            <ul>
+                                <?php foreach($dealer['Service'] as $s){?>
+                                    <li>-&nbsp;&nbsp;<?php echo $s['name'];?></li>
+                                <?php }?>
+                            </ul>
+                        </div>
+                    <?php }?>
+                </div>
+                <div class="clr"></div>
+            </div>
