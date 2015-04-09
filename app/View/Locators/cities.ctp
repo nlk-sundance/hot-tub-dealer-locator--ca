@@ -7,7 +7,13 @@
         $chrome = true; 
     }
 ?>
-
+<form id="dealer-finder" action="http://localhost/sundancespascagit/hot-tub-dealer-locator--ca/cities/" method="post">
+<a href="/hot-tub-dealer-locator/">Find a Dealer</a>
+<input id="zip" class="text" type="text" onblur="if(jQuery(this).val()=='') jQuery(this).val('zip code');" onfocus="if(jQuery(this).val()=='zip code') jQuery(this).val('');" value="zip code" name="data[Dealer][zip]">
+<input type="hidden" value="1" name="zipcodeSearch">
+<input type="hidden" value="3" name="data[Dealer][country_id]">
+<input class="submit" type="image" value="submit" src="http://www.sundancespas.ca/wp-content/themes/sundance/images/icons/submitArrow.jpg">
+</form>
 
         <?php if(empty($dealer)): ?>
 

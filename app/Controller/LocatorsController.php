@@ -739,8 +739,7 @@ class LocatorsController extends AppController
                     if($zipCountryMatch){
                         $countryId = 3;
                     }
-                }
-                if(!$zipCountryMatch && $countryId == 3){
+                }elseif(!$zipCountryMatch && $countryId == 3){
                     $zipCountryMatch = $this->checkCountryZip(1, $_POST['zip']);
                     if($zipCountryMatch){
                         $countryId = 1;
