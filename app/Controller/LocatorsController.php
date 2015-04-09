@@ -63,7 +63,8 @@ class LocatorsController extends AppController
                 $lngTxt['defaultCountry'] = 3; #Canada
             break;    
         }
-        
+        $popular_ca_cities = $this->Dealer->find('all', array('conditions' => array('Dealer.state_id' => array(59, 61), 'published' => 'Y'), 'fields' => array('DISTINCT(city)', 'slug', 'state_id', 'State.abbreviation', 'State.name'), 'order' => 'city', 'recursive' => 0));
+        $this->set('popular_ca_cities', $popular_ca_cities);
         $this->set("lngTxt", $lngTxt);
         $this->set("subdomain", $this->subDomain);
     }
@@ -100,8 +101,8 @@ class LocatorsController extends AppController
         $defaultCtry = $this->defaultcountry();
         $this->set('defaultCtry', $defaultCtry);
         $this->set('countryList', $this->Country->getCountryList());
-        $this->set('stateList', $this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 1), 'fields' => array('name', 'abbreviation'), 'sort' => 'name ASC', 'recursive' => -1))); #generate list of states
-        $this->set('provList', $this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 3), 'fields' => array('name', 'abbreviation'), 'sort' => 'name ASC', 'recursive' => -1))); #generate list of states
+        $this->set('stateList', $this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 1), 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1))); #generate list of states
+        $this->set('provList', $this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 3), 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1))); #generate list of states
         $this->set('layoutTitle', 'Hot Tub Dealers: Find Sundance Spas Stores & Retailers | Sundance Spas');
         $this->set('metaKeyword', 'Hot Tub Dealers,Spa Dealer,Hot Tub Dealer,Spa Dealers');
         $this->set('metaDesc', 'Find local hot tub dealers of the world\'s most recognized brand, Sundance Spas. Locate your authorized Sundance Spas store for the best discounts and deals.');
@@ -504,7 +505,7 @@ class LocatorsController extends AppController
                 );
             }
             //$query = ($countryId == 3) ? 'State.country_id = 3' : 'State.name NOT IN ("", "DC") AND State.country_id = 1';
-            $stateList = $this->State->find('all', array('conditions' => $query, 'fields' => array('name', 'abbreviation'), 'sort' => 'name ASC', 'recursive' => -1));
+            $stateList = $this->State->find('all', array('conditions' => $query, 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1));
             //$stateList = $this->State->findAll($query, array('name', 'abbreviation'), 'name ASC', null, null, -1);
             $this->set('stateList', $stateList); #generate list of countries
             $this->set('cityList', $this->Dealer->find('all', array('conditions' => array('Dealer.state_id' => $stateId, 'published' => 'Y'), 'fields' => array('DISTINCT(slug)', 'city'), 'order' => 'city', 'recursive' => -1)));
@@ -600,8 +601,8 @@ class LocatorsController extends AppController
         //$this->set('subDomain' , $subDomain);
         
         $this->set('countryList', $this->Country->getCountryList()); #generate list of countries
-        $this->set('stateList',$this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 1), 'fields' => array('name', 'abbreviation'), 'sort' => 'name ASC', 'recursive' => -1))); #generate list of countries
-        $this->set('provList',$this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 3), 'fields' => array('name', 'abbreviation'), 'sort' => 'name ASC', 'recursive' => -1))); #generate list of provinces
+        $this->set('stateList',$this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 1), 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1))); #generate list of countries
+        $this->set('provList',$this->State->find('all', array('conditions' => array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 3), 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1))); #generate list of provinces
         //$this->set('stateList',$this->State->findAll('State.name NOT IN ("", "DC") AND State.country_id = 1', array('name', 'abbreviation'), 'name ASC', null, null, -1)); #generate list of countries
         //$this->set('provList', $this->State->findAll('State.name NOT IN ("", "DC") AND State.country_id = 3', array('name', 'abbreviation'), 'name ASC', null. null, -1)); #generate list of provinces
         $dealer = $this->show('', $countryID); //get dealers
@@ -893,7 +894,7 @@ class LocatorsController extends AppController
 
         $this->set('countryList', $this->Country->getCountryList()); #generate list of countries
         $query = ($countryId == 3) ? array('State.country_id' => 3) : array('not' => array('State.name' => array("", "DC")), 'State.country_id' => 1);
-        $this->set('stateList',$this->State->find('all', array($query, 'fields' => array('name', 'abbreviation'), 'sort' => 'name ASC', 'recursive' => -1))); #generate list of countries
+        $this->set('stateList',$this->State->find('all', array($query, 'fields' => array('name', 'abbreviation'), 'order' => 'name ASC', 'recursive' => -1))); #generate list of countries
         //$this->set('stateList',$this->State->findAll($query, array('name', 'abbreviation'), 'name ASC', null, null, -1)); #generate list of countries
         $this->set('countryID', $this->Country->find('first', array('conditions' => array('Country.id' => $countryId))));
         $this->set('inUSCA', $this->verifyUSCA($countryId));

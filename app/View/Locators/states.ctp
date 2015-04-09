@@ -61,4 +61,5 @@
 <?php echo $this->element('seotxt'); ?>
 <p><br /></p>
 <?php echo $this->element('locatedealerform');?>
+<?php echo $this->element('stateList');?>
 <p><a href="<?php echo $this->webroot?>" title="Hot Tub Dealers">Search United States</a> | <a href="<?php echo $this->webroot;?>" title="Hot Tub Dealers">Search the Map</a></p>
