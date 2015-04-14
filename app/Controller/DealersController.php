@@ -1659,7 +1659,8 @@ class DealersController extends AppController
                     'conditions' => array(
                         //'default_promo' => 1,
                         'additional_html_end >=' => time(),
-                        'published' => 'Y'
+                        'published' => 'Y',
+                        'Dealer.country_id' => 3
                         ),
                     'limit' => 5,
                     'fields' => array(
