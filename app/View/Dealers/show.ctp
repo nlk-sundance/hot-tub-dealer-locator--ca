@@ -37,6 +37,15 @@ if($admin == 1){?>
         <?php echo $this->element('filter', $filter); ?>
         <td id="main">
             <?php
+            
+            if (!empty($data['Dealer']['updated'])){
+                $modified_date = strtotime($data['Dealer']['updated']);
+				if($modified_date)
+				{
+					echo '<p style="text-align: right;"><strong>Last modfied:</strong> '.date('m/d/Y', $modified_date).'</p>';	
+				}
+            }
+			
             $err = FALSE;
             if(is_array($this->Form->validationErrors)){
                 foreach($this->Form->validationErrors as $e){
@@ -313,14 +322,48 @@ if($admin == 1){?>
         }
     }
     
+    
+    function gettmcestats(id) {
+	    var body = tinymce.get(id).getBody(), text = tinymce.trim(body.innerText || body.textContent);
+	
+	    return {
+	        chars: text.length,
+	        words: text.split(/[\w\u2019\'-]+/).length
+	    };
+	} 
+	
+	function checkaboutlength()
+	{
+		console.log('Total words are '+gettmcestats('DealerAboutBody').words);
+		
+        if (gettmcestats('DealerAboutBody').words < 250) {
+            alert("Please revise About Body section. Must be a minimum of 250 words before submission for approval.");
+            return false;
+        }
+        else
+        {
+        	return true;
+        }		
+	}
+	
     function saveDealer()
     {
+    	if(!checkaboutlength())
+    	{
+    		return false;
+    	}
+    	
         //$ = getElementById
         $('input-action').value = "save"; //changing hidden field id=input-action
         $('form-dealers').submit(); //submit form-dealers
     }
     
     function saveApproved(){
+        if(!checkaboutlength())
+    	{
+    		return false;
+    	}
+    	
         $('input-action').value = "approve"; //changing hidden field id=input-action
         $('form-dealers').submit(); //submit form-dealers
     }
@@ -330,18 +373,33 @@ if($admin == 1){?>
     }
     
     function saveApproveDealer(){
+        if(!checkaboutlength())
+    	{
+    		return false;
+    	}
+    	
         $('DealerApprovalReady').value = 1;
         saveDealer();
     }
  
     function saveCloseDealer()
     {
+    	if(!checkaboutlength())
+    	{
+    		return false;
+    	}
+    	
         $('input-action').value = "saveClose";
         $('form-dealers').submit();     
     }
  
     function saveNewDealer()
     {
+    	if(!checkaboutlength())
+    	{
+    		return false;
+    	}
+    	
         $('input-action').value = "saveNew";
         $('form-dealers').submit();
     }
