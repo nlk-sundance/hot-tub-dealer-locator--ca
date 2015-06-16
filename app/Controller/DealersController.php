@@ -28,7 +28,20 @@ class DealersController extends AppController
         $this->set('tabOn', 'dealers');
         $this->us_id = $this->Country->field('Country.id', array('Country.name' => 'United States'));
         $this->can_id = $this->Country->field('Country.id', array('Country.name' => 'Canada'));
-        $this->set('pending_num', $this->Dealer->find('count', array('conditions' => array('Dealer.dealer_id IS NOT NULL'))));
+        //$this->set('pending_num', $this->Dealer->find('count', array('conditions' => array('Dealer.dealer_id IS NOT NULL'))));
+        $options['joins'] = array(
+		    array('table' => 'dealers',
+		        'alias' => 'DealersPending',
+		        'type' => 'LEFT',
+		        'conditions' => array(
+		            'DealersPending.dealer_id = Dealer.id',
+		        )
+		    )
+		);
+		
+		$options['conditions'] = array('1 = 1 AND `Dealer`.`dealer_id` IS NULL AND `Dealer`.`published` LIKE \'%Y%\' AND `DealersPending`.`id` IS NOT NULL AND `DealersPending`.`approval_ready` = 1');
+		
+		$this->set('pending_num', $this->Dealer->find('count', $options));
     }
     
     public function index(){
@@ -1597,6 +1610,45 @@ class DealersController extends AppController
         #header("Content-Transfer-Encoding: binary\n");
     }
     
+	function exportcustom(){
+        $this->checkLogin();
+        $this->layout = "admin";
+        $query = $this->getQuery(); #calls getQuery() to get $_POST data from index.thtml
+        $this->set('countryList', $this->Country->getCountryList());
+        $this->set('stateList', $this->State->find('list', array('sort' => 'position ASC')));
+    }
+    
+    function exportcustomexcel()
+    {
+    	/* New Export */
+    	
+        $this->checkLogin();
+        ini_set("display_errors", false);
+        ini_set("memory_limit","256M");
+        $this->layout = "blank";
+        
+        #all Dealers
+        //$all = $this->Dealer->find('all', array('conditions' => array('Dealer.dealer_id IS NULL AND Dealer.about_body IS NOT NULL'), 'recursive' => 0));
+        $all = $this->Dealer->find('all', array('conditions' => array('Dealer.dealer_id IS NULL'), 'recursive' => 0));
+        $this->set("all", $all);
+        
+        #filename of xls speadsheet
+        $fileName = trim($_POST['filename']);
+        if (empty($fileName)){
+            $fileName = "Updated Dealer";
+        }
+        $fileName .= ".xls";
+        $this->set('fileName', $fileName);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        #header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        #header("Cache-Control: private",false); // required for certain browsers        
+        header("Content-Type: application/force-download");
+        header('Content-Disposition: attachment; filename="'.addslashes($fileName).'"' );
+        #header("Content-Transfer-Encoding: binary\n");
+    }
+
     function email_notify_approval_ready($id){
         $to = 'jonathan.davis@jacuzzi.com';
 
