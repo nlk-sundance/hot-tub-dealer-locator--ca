@@ -514,13 +514,16 @@ class LocatorsController extends AppController
             $this->set("countryId", $countryId);
             
             //layout variables
-            if($countryId == 3){
+            /*if($countryId == 3){
                 $this->set('layoutTitle', 'Hot Tubs '.$stateName.': Find Hot Tub Spa Dealers in '.$stateName.' | Sundance Spas');
                 $this->set('metaDesc', 'Find a wide selection of hot tubs and spas in '.$stateName.'. Sundance Spas dealers offer spa accessories and covers at stores in '.$stateName.'.');
             }else{
                 $this->set('layoutTitle', "Hot Tubs ".$stateName.": Find Sundance Spas Dealers in ".$stateName." | Sundance Spas");
                 $this->set('metaDesc', 'Find '.$stateName.' hot tub dealers of the world\'s most recognized brand, Sundance Spas. Search for authorized Sundance Spas dealers in '.$stateName.' to find the best discounts and deals.');
-            }
+            }*/
+            $this->set('layoutTitle', $stateName.' Hot Tubs: Find a Sundance Spas Dealer in '.$stateName.' | Sundance Spas');
+            $this->set('metaDesc', 'Find '.$stateName.' hot tub dealers that are closest to you and enjoy great deals, discounts and great service from one of the most recognized hot tub brands, Sundance Spas!');
+
             $this->set('metaKeyword', 'Hot Tubs in '.$stateName.',Hot Tubs '.$stateName.','.$stateName.' Hot Tubs,Sundance Spas Dealers '.$stateName);
             $this->set('ga_action', 'State');
             $ga_label = $stateName.', '.$this->Country->field('name', array('Country.id' => $countryId));
