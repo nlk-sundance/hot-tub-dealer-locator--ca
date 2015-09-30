@@ -92,7 +92,7 @@
                                 echo ', <span class="state" itemprop="addressRegion">'.$dealer["State"]["abbreviation"].'</span>';
                             }
                             if(!empty($dealer['Dealer']['zip'])) {
-                                echo ' <span class="dzip">'. $dealer["Dealer"]["zip"] '</span>';
+                                echo ' <span class="dzip">'. $dealer["Dealer"]["zip"] .'</span>';
                             }
                             ?>
                         </div>
