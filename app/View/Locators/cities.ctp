@@ -77,8 +77,8 @@
                         <?php // dealer address ?>
                         <?php if(!empty($dealer['Dealer']['address1'])): ?>
                         <h3>Address</h3>
-                        <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
-                            <span itemprop="streetAddress">
+                        <div class="dealer-address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+                            <span class="address1" itemprop="streetAddress">
                             <?php
                             echo $dealer['Dealer']['address1'];
                             if(!empty($dealer['Dealer']['address2'])) {
@@ -86,13 +86,13 @@
                             }?>
                             </span>
                             <?php if(!empty($dealer['Dealer']['city'])) {
-                                echo '<br /><span itemprop="addressLocality">'.$dealer['Dealer']['city'].'</span>';
+                                echo '<br /><span class="city" itemprop="addressLocality">'.$dealer['Dealer']['city'].'</span>';
                             }
                             if(!empty($dealer['State']['abbreviation'])) {
-                                echo ', <span itemprop="addressRegion">'.$dealer["State"]["abbreviation"].'</span>';
+                                echo ', <span class="state" itemprop="addressRegion">'.$dealer["State"]["abbreviation"].'</span>';
                             }
                             if(!empty($dealer['Dealer']['zip'])) {
-                                echo ' '.$dealer["Dealer"]["zip"];
+                                echo ' <span class="dzip">'. $dealer["Dealer"]["zip"] '</span>';
                             }
                             ?>
                         </div>
@@ -101,7 +101,7 @@
                         <?php if(!empty($dealer['Dealer']['phone'])):?>
                             <h3>Phone</h3>
                             <p>
-                                <span itemprop="telephone"><?php echo $dealer['Dealer']['phone'];?></span>
+                                <span class="phone" itemprop="telephone"><?php echo $dealer['Dealer']['phone'];?></span>
                                 <a class="teal-button" onclick="show_sms()">Send to Phone</a>
                             </p>
                         <?php endif; ?>
@@ -111,7 +111,7 @@
                         $stripped_hours = trim($stripped_hours);
                         if(!empty($stripped_hours)):?>
                             <h3>Store Hours</h3>
-                            <p>
+                            <p class="dealer-hours">
                                 <?php echo $stripped_hours; //$dealer['Dealer']['hours'];?>
                             </p>
                         <?php endif; ?>
