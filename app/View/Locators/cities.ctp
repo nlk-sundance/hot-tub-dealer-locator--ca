@@ -70,7 +70,7 @@
 
                     <?php /* DEALER DETAILS */ ?>
                     <div id="dealer_details_3col_details" class="col w320">
-                        <div itemscope itemtype="http://schema.org/LocalBusiness">
+                        <div class="dealer-details" itemscope itemtype="http://schema.org/LocalBusiness">
                         <?php // dealer name ?>
                         <h2><span itemprop="name"><?php echo ucwords(strtolower($dealer['Dealer']['name'])); ?></span></h2>
                         <span itemprop="description">Find a wide selection of hot tubs and spas at a Sundance Spas hot tub spa dealer in <?php echo $dealer['Dealer']['city']?>, <?php echo $dealer["State"]["name"];?>.</span>
